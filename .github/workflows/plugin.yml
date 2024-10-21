@@ -41,9 +41,6 @@ jobs:
       APP_URL: http://localhost:8000
       APP_SECRET: devsecret
       BLUE_GREEN_DEPLOYMENT: 0
-      SCHEMA_NAME: ""
-      SCHEMA_FLAGS: ""
-      SCHEMA_FILE: ""
 
     services:
       database:
@@ -53,7 +50,7 @@ jobs:
           MYSQL_DATABASE: root
 
     steps:
-      - name: Test
+      - name: Output plugin name
         run: |
           echo ${{ env.PLUGIN_NAME }}
           echo $PLUGIN_NAME
