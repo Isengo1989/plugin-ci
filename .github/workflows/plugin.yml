@@ -77,7 +77,6 @@ jobs:
           git checkout $SWTAG
 
       - name: checkout ${{ inputs.plugin_name }} plugin
-        if: ${{ inputs.plugin_name }}
         run: |
           git clone ${{ inputs.git_options }} https://${{ inputs.plugin_url }} custom/plugins/${{ inputs.plugin_name }}
       - name: Generate schema file
