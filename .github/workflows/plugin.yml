@@ -1,0 +1,97 @@
+name: Run plugin install
+
+on:
+  workflow_call:
+    inputs:
+      plugin_name:
+        description: "Defines a plugin name that is passed to the framework:schema command."
+        required: false
+        type: string
+      plugin_url:
+        description: "Defines a plugin name that is passed to the framework:schema command. Example: gitlab.shopware.com:shopware/6/services/swagguidedshopping.git"
+        required: false
+        type: string
+      composer_packages:
+        description: "Defines composer packages that are passed to composer require. Example: shopware-pwa/shopware-pwa"
+        required: false
+        type: string
+      git_options:
+        description: "Adding git options to clone"
+        required: false
+        type: string
+      shopware_version:
+        description: "Adding a version to build"
+        required: false
+        type: string
+        default: 'trunk'
+      php_version:
+        description: "Adding a php version to build"
+        required: false
+        type: string
+        default: '8.2'
+    secrets:
+      DEPLOY_USER:
+        required: true
+      DEPLOY_TOKEN:
+        required: true
+
+jobs:
+  install_plugin:
+    name: "Generate an plugin install test"
+    runs-on: ubuntu-latest
+    container: "shopware/development:${{ inputs.php_version }}-composer-2"
+    env:
+      APP_ENV: prod
+      DATABASE_URL: mysql://root:root@database:3306/root
+      APP_URL: http://localhost:8000
+      APP_SECRET: devsecret
+      BLUE_GREEN_DEPLOYMENT: 0
+      SCHEMA_NAME: ""
+      SCHEMA_FLAGS: ""
+      SCHEMA_FILE: ""
+
+    services:
+      database:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: root
+
+    steps:
+      - name: Test
+        run: |
+          echo ${{ env.PLUGIN_NAME }}
+          echo $PLUGIN_NAME
+
+      - name: Checkout Shopware
+        uses: actions/checkout@v4
+        with:
+          repository: shopware/shopware
+          ref: ${{ inputs.shopware_version }}
+          fetch-depth: 0
+
+      - name: configure job
+        run: |          
+          git config --global --add safe.directory /__w/store-api-reference/store-api-reference
+          git config --global --add safe.directory /__w/admin-api-reference/admin-api-reference
+          
+          export SWTAG=$(git tag | tr '.' ' ' | sort -nr -k2,3 | head -n1 | tr ' ' '.')
+          echo "SCHEMA_NAME=store-api-schema-$SWTAG" >> $GITHUB_ENV
+
+      - name: checkout latest release
+        run: |
+          git checkout $SWTAG
+
+      - name: checkout ${{ inputs.plugin_name }} plugin
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        if: ${{ inputs.plugin_name }}
+        run: |
+          git clone ${{ inputs.git_options }} https://${DEPLOY_USER}:${DEPLOY_TOKEN}@${{ inputs.plugin_url }} custom/plugins/${{ inputs.plugin_name }}
+      - name: Generate schema file
+        run: |
+          composer install -o
+          composer run init:db
+          ./bin/console plugin:install ${{ inputs.plugin_name }}
+          ./bin/console plugin:activate ${{ inputs.plugin_name }}
