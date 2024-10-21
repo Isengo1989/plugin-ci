@@ -54,6 +54,7 @@ jobs:
         run: |
           echo ${{ env.PLUGIN_NAME }}
           echo $PLUGIN_NAME
+          echo ${{ inputs.plugin_name }}
 
       - name: Checkout Shopware
         uses: actions/checkout@v4
