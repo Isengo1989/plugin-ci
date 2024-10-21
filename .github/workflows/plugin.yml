@@ -66,9 +66,8 @@ jobs:
           fetch-depth: 0
 
       - name: configure job
-        run: |          
-          git config --global --add safe.directory /__w/store-api-reference/store-api-reference
-          git config --global --add safe.directory /__w/admin-api-reference/admin-api-reference
+        run: |
+          git config --global --add safe.directory /__w/e2eplugin/e2eplugin
           
           export SWTAG=$(git tag | tr '.' ' ' | sort -nr -k2,3 | head -n1 | tr ' ' '.')
           echo "SCHEMA_NAME=store-api-schema-$SWTAG" >> $GITHUB_ENV
