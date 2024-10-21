@@ -29,11 +29,6 @@ on:
         required: false
         type: string
         default: '8.2'
-    secrets:
-      DEPLOY_USER:
-        required: true
-      DEPLOY_TOKEN:
-        required: true
 
 jobs:
   install_plugin:
@@ -83,12 +78,9 @@ jobs:
           git checkout $SWTAG
 
       - name: checkout ${{ inputs.plugin_name }} plugin
-        env:
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         if: ${{ inputs.plugin_name }}
         run: |
-          git clone ${{ inputs.git_options }} https://${DEPLOY_USER}:${DEPLOY_TOKEN}@${{ inputs.plugin_url }} custom/plugins/${{ inputs.plugin_name }}
+          git clone ${{ inputs.git_options }} https://${{ inputs.plugin_url }} custom/plugins/${{ inputs.plugin_name }}
       - name: Generate schema file
         run: |
           composer install -o
