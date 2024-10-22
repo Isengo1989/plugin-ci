@@ -81,6 +81,8 @@ jobs:
           composer run init:db
           ./bin/console plugin:install ${{ inputs.plugin_name }}
           ./bin/console plugin:activate ${{ inputs.plugin_name }}
+          ./bin/console theme:compile
+          curl -I http://localhost:8000
       - name: Run e2e test
         run: |          
           npm -v
