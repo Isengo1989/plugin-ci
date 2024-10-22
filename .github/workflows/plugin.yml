@@ -83,3 +83,4 @@ jobs:
           composer run init:db
           ./bin/console plugin:install ${{ inputs.plugin_name }}
           ./bin/console plugin:activate ${{ inputs.plugin_name }}
+          npm -v
