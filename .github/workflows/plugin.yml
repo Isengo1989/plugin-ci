@@ -51,10 +51,8 @@ jobs:
 
     steps:
       - name: Output plugin name
-        run: |
-          echo ${{ env.PLUGIN_NAME }}
-          echo $PLUGIN_NAME
-          echo ${{ inputs.plugin_name }}
+        run: |    
+          echo ${{ inputs.plugin_name }}      
 
       - name: Checkout Shopware
         uses: actions/checkout@v4
@@ -77,10 +75,15 @@ jobs:
       - name: checkout ${{ inputs.plugin_name }} plugin
         run: |
           git clone ${{ inputs.git_options }} https://${{ inputs.plugin_url }} custom/plugins/${{ inputs.plugin_name }}
-      - name: Generate schema file
+      - name: Composer and plugin install
         run: |
           composer install -o
           composer run init:db
           ./bin/console plugin:install ${{ inputs.plugin_name }}
           ./bin/console plugin:activate ${{ inputs.plugin_name }}
+      - name: Run e2e test
+        run: |          
           npm -v
+          cd custom/plugins/${{ inputs.plugin_name }}//src/Resources/app/dev/test/e2e
+          npm install
+          CYPRESS_baseUrl=http://localhost:8000 npm run e2e:chrome
