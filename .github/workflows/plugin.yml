@@ -82,6 +82,7 @@ jobs:
           ./bin/console plugin:install ${{ inputs.plugin_name }}
           ./bin/console plugin:activate ${{ inputs.plugin_name }}
           ./bin/console theme:compile
+          ./bin/console sales-channel:list
           curl -I http://localhost:8000
       - name: Run e2e test
         run: |          
